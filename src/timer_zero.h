@@ -1,23 +1,24 @@
 /*
- * timer0.h
+ * timer_zero.h
  *
- *  Created on: 12 May 2016
- *      Author: cfurter
+ *  Created on: 03 Jun 2017
+ *      Author: christo
  */
 
 #ifndef SRC_TIMER_ZERO_H_
 #define SRC_TIMER_ZERO_H_
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
+class cTimerZero
+{
+    void (*timerZeroCallback)(void) = 0;
+public:
+    cTimerZero();
+    void setCB(void (*cb)(void));
+    void serviceCB();
+    virtual ~cTimerZero();
 
-/* Define the initial value for the 8-bit timer */
-#define RTC_TCNT0_REG_VAL   0xC3
+};
 
-
-/*** Function Prototypes ***/
-
-void timerZero_init();
-void timerZero_setCB(void (*cb)(void));
+extern cTimerZero TimerZero;
 
 #endif /* SRC_TIMER_ZERO_H_ */
