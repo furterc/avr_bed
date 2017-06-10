@@ -20,25 +20,27 @@ public:
     } Type;
 
     typedef enum {
-        BT_HOURS,
-        BT_MINUTES,
-        BT_SECONDS,
-        BT_KITCH_TOP,
-        BT_KITCH_BOT,
-        BT_STUDY_TOP,
-        BT_STUDY_BOT,
-        BT_ALARM_HOUR,
-        BT_ALARM_MINUTE,
-        BT_ALARM_ACTIVE,
-        BT_BED_0,
-        BT_BED_1,
-        BT_BED_2,
-        BT_BED_3,
-        BT_BED_4,
-        BT_BED_5,
-        BT_BED_6,
-        BT_BED_7,
-        BT_BED_8
+        BT_HOURS,       //0
+        BT_MINUTES,     //1
+        BT_SECONDS,     //2
+        BT_KITCH_TOP,   //3
+        BT_KITCH_BOT,   //4
+        BT_STUDY_TOP,   //5
+        BT_STUDY_BOT,   //6
+        BT_ALARM_HOUR,  //7
+        BT_ALARM_MINUTE,//8
+        BT_ALARM_ACTIVE,//9
+        SKIP_1,         //10
+        BT_BED_0,       //11
+        BT_BED_1,       //12
+        SKIP_2,         //13
+        BT_BED_2,       //14
+        BT_BED_3,       //15
+        BT_BED_4,       //16
+        BT_BED_5,       //17
+        BT_BED_6,       //18
+        BT_BED_7,       //19
+        BT_BED_8        //20
     } Tag;
 
     static uint8_t check(uint8_t *, cPacket * packet);
