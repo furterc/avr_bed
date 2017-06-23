@@ -1,31 +1,27 @@
 /*
  * pwm.h
  *
- *  Created on: 03 Jun 2017
+ *  Created on: 17 Feb 2017
  *      Author: christo
  */
 
-#ifndef SRC_PWM_H_
-#define SRC_PWM_H_
+#ifndef PWM_H_
+#define PWM_H_
 
-#include <stdint-gcc.h>
-#include "output.h"
+#include "stdint-gcc.h"
 
-class cPWM
-{
-    cOutput * mOutput;
-    bool mActive;
-    uint8_t mDuty;
-
+class cPWM {
+	uint8_t mDutyC = 0;
+	bool mEnabled = false;
+	volatile uint8_t * mOCRn;
 public:
-    cPWM(cOutput * output);
-    bool isActive();
-    uint8_t getDuty();
-    void setDuty(uint8_t duty);
-    bool get();
-    void set();
-    void reset();
-    virtual ~cPWM();
+	cPWM();
+	void setOCRn(volatile uint8_t *);
+	uint8_t setDutyC(uint8_t);
+	uint8_t getDutyC();
+	void incDutyC();
+	void decDutyC();
+	virtual ~cPWM();
 };
 
-#endif /* SRC_PWM_H_ */
+#endif /* PWM_H_ */

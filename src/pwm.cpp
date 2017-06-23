@@ -1,85 +1,54 @@
 /*
  * pwm.cpp
  *
- *  Created on: 03 Jun 2017
+ *  Created on: 17 Feb 2017
  *      Author: christo
  */
 
 #include "pwm.h"
-#include "output.h"
 
-
-
-cPWM::cPWM(cOutput * output)
+cPWM::cPWM()
 {
-    mDuty = 0;
-    mActive = false;
-    mOutput = output;
-    mOutput->reset();
+    mOCRn = 0;
 }
 
-void cPWM::setDuty(uint8_t duty)
+void cPWM::setOCRn(volatile uint8_t * ocr)
 {
-    mOutput->set();
-
-    if(duty == 255)
-    {
-        mActive = false;
-        mOutput->set();
-    }else if (duty == 0)
-    {
-        mActive = false;
-        mOutput->reset();
-    }
-    else
-        mActive = true;
-
-    mDuty = duty;
+    mOCRn = ocr;
+    mEnabled = true;
 }
 
-uint8_t cPWM::getDuty()
+uint8_t cPWM::setDutyC(uint8_t duty)
 {
-    return mDuty;
+    if (!mEnabled)
+        return 0;
+    mDutyC = duty;
+    *mOCRn = mDutyC;
+    return 1;
 }
 
-void cPWM::set()
+void cPWM::incDutyC()
 {
-    mOutput->set();
+    if (mDutyC == 0xFF)
+        return;
+
+    setDutyC(++mDutyC);
 }
 
-void cPWM::reset()
+void cPWM::decDutyC()
 {
-    mOutput->reset();
+    if (mDutyC == 0x00)
+        return;
+
+    setDutyC(--mDutyC);
 }
 
-bool cPWM::get()
+uint8_t cPWM::getDutyC()
 {
-    return mOutput->get();
+    return mDutyC;
 }
-
-bool cPWM::isActive()
-{
-    return mActive;
-}
-
-//void cPWM::run()
-//{
-//    if(!mActive)
-//        return;
-//
-//    if(++mDutyCount == 0xFF)
-//    {
-//        /* Reset Ports */
-//        mDutyCount = 0;
-//        mOutput->set();
-//    }
-//
-//    if (mDutyCount == mDuty)
-//        mOutput->reset();
-//}
 
 cPWM::~cPWM()
 {
-    // TODO Auto-generated destructor stub
 }
 

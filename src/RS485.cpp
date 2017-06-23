@@ -14,7 +14,7 @@
 #define BAUD 9600
 #define MYUBBR ((F_CPU / (BAUD * 8UL))-1)
 
-cOutput mWriteEnable = cOutput(PORT_PD(2));
+cOutput mWriteEnable = cOutput(PORT_PC(2));
 
 cRS485::cRS485()
 {

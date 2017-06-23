@@ -17,7 +17,7 @@
 #define BTN_BOT_DDR DDRC
 #define BTN_BOT_PORT PORTC
 #define BTN_BOT_PIN PINC
-#define BTN_BOT_INPUTPIN PC5
+#define BTN_BOT_INPUTPIN PC3
 
 cToggleSwitch::cToggleSwitch()
 {
