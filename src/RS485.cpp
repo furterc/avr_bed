@@ -8,6 +8,7 @@
 #include "RS485.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <string.h>
 #include "output.h"
 
 #define BAUD 9600
@@ -17,8 +18,8 @@ cOutput mWriteEnable = cOutput(PORT_PD(2));
 
 cRS485::cRS485()
 {
-    mHead = 0;
-    mTail = 0;
+    mDataReady = false;
+    mCommandLen = 0;
 
     DDRB |= _BV(PB0);   //output
 
@@ -52,68 +53,61 @@ void cRS485::transmit_byte(uint8_t b)
 
 void cRS485::transmit_packet(uint8_t * buff, uint8_t len)
 {
-    for (uint8_t i = 0; i < len; i++)
+    uint8_t frame_ptr[64];
+    uint32_t frame_length = 64;
+    cHDLCframer::frame(buff, 4, frame_ptr, &frame_length);
+
+    for (uint8_t i = 0; i < frame_length; i++)
     {
-        transmit_byte(buff[i]);
+        transmit_byte(frame_ptr[i]);
     }
-    transmit_byte(0x0D);
 }
 
 void cRS485::handleCommand()
 {
-    mCommand[mTail] = 0;
-    mHead = 0;
-    mTail = 0;
+    mCommand[mCommandLen] = 0;
 
-    cPacket packet = cPacket();
-    if (cPacket::check((uint8_t*) mCommand, &packet) == 1)
-    {
+        uint8_t data[mCommandLen];
+        memcpy(&data, mCommand, mCommandLen);
+        memset(mCommand, 0xFF, 64);
+
+        cMsg cmsgIn = cMsg(data);
         uint8_t idx = 0;
-        const rs485_dbg_entry *currRS485Entry = rs485_dbg_entries[idx++];
-        while (currRS485Entry)
+        const rs485_dbg_entry *curr485Entry = rs485_dbg_entries[idx++];
+        while (curr485Entry)
         {
-            if ((currRS485Entry->tag == packet.getTag()))
+            if ((curr485Entry->tag == cmsgIn.getTag()))
             {
-                currRS485Entry->func(packet);
+                curr485Entry->func(cmsgIn);
                 return;
             }
-
-            currRS485Entry = rs485_dbg_entries[idx++];
+            curr485Entry = rs485_dbg_entries[idx++];
         }
-        return;
-    }
 }
 
 void cRS485::run()
 {
-
-    while (mHead != mTail)
-    {
-        if ((mCommand[mTail] == '\n') || (mCommand[mTail] == '\r'))
+    if (mDataReady)
         {
+            mDataReady = false;
             handleCommand();
         }
-        else
-            mTail++;
-    }
 }
 
-void cRS485::handle(char ch)
+void cRS485::handle(uint8_t ch)
 {
-    mCommand[mHead] = ch;
-
-    if (++mHead > 63)
-    {
-        mHead = 0;
-        mTail = 0;
-    }
+    int rxLen = framer.pack(ch);
+        if (rxLen)
+        {
+            mCommandLen = rxLen;
+            memcpy(&mCommand, framer.buffer(), rxLen);
+            mDataReady = true;
+        }
 }
 
 ISR(USART_RX_vect)
 {
-    char ch = UDR0;
-
-    RS485.handle(ch);
+    RS485.handle(UDR0);
 }
 
 ISR(USART_TX_vect)

@@ -10,10 +10,9 @@
 
 #include <stdint-gcc.h>
 
-#include "Packet.h"
-#include "pwm.h"
-
-typedef void (*rs485_dbg_func)(cPacket packet);
+#include "cMsg.h"
+#include "hdlc_framer.h"
+typedef void (*rs485_dbg_func)(cMsg packet);
 
 struct rs485_dbg_entry
 {
@@ -23,18 +22,19 @@ struct rs485_dbg_entry
 
 class cRS485
 {
-    uint8_t mHead;
-    uint8_t mTail;
-    char mCommand[64];
-    void handleCommand();
+    cHDLCframer framer = cHDLCframer(32);
 
+    bool mDataReady;
+    char mCommand[64];
+    uint8_t mCommandLen;
+
+    void handleCommand();
+    void transmit_byte(uint8_t b);
 public:
     cRS485();
-    void transmit_byte(uint8_t b);
     void transmit_packet(uint8_t * buff, uint8_t len);
-
     void run();
-    void handle(char);
+    void handle(uint8_t);
 
     virtual ~cRS485();
 };
